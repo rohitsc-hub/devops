@@ -501,7 +501,7 @@ Q.2 Set up a multicontainer application (webserver, database) using docker compo
 
 
 Open cmd run 
-wsl --install -d Ubuntu-22.04. 
+wsl --install -d Ubuntu-22.04
 Exit 
 
 
