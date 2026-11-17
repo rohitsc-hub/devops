@@ -1,0 +1,656 @@
+﻿Practical :1
+
+
+Q.1 Setting up the environment for Devops. CIA Job for Java Project
+Jenkins,Kubernets,Docker,GitHub
+
+
+Check java -version (21 should be there ) 
+
+
+1. Download Jenkins MSI Windows and set it up
+2. Then enter http://localhost:8080/ in new tab
+3. Jenkins opens then copy paste the Administrative Password and enter.
+4. Select Suggested Setup
+
+
+1. New Item> Enter Item name> select Pipeline as type> enter pipeline script> Save.
+
+
+pipeline {
+    agent any
+
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building website...'
+
+
+                writeFile file: 'index.html', text: '''
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>My First Deployment</title>
+                </head>
+                <body>
+                    <h1>Hello from Jenkins!</h1>
+                    <p>My first CI/CD deployment is working.</p>
+                </body>
+                </html>
+                '''
+
+
+                archiveArtifacts artifacts: 'index.html'
+            }
+        }
+
+
+        stage('Deploy') {
+            steps {
+                echo 'Website HTML created and archived successfully!'
+            }
+        }
+    }
+} 
+2. Build now> Builds> select build file> Check console output (shows ‘success’ status)
+3. Status> select open index.html > Output done!
+
+
+
+
+Practical 2:
+
+
+* Install git
+* Log in to GitHub and create a new repository named devops-demo.
+* Choose Public, and initialize it with a README.
+* In the repository, click Add file → Create new file.
+* Name the file exactly Jenkinsfile — without an extension.(J capital )
+* Paste this pipeline into the file and commit it.
+pipeline {
+    agent any
+
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Source code is available from GitHub'
+            }
+        }
+
+
+        stage('Build') {
+            steps {
+                echo 'Build stage running'
+            }
+        }
+
+
+        stage('Test') {
+            steps {
+                echo 'Test stage running'
+            }
+        }
+    }
+}
+
+
+Connect the repository to Jenkins
+1. Return to the Jenkins dashboard.
+2. Click New Item and name the job GitHub-CI-Pipeline.
+3. Select Pipeline and click OK.
+4. Scroll to the Pipeline section.
+5. Change Definition to Pipeline script from SCM.
+6. Choose Git as SCM.
+7. Enter your repository URL, such as https://github.com/YOUR-USERNAME/devops-demo.git.
+8. Enter Jenkinsfile in Script Path.
+9. Branch name should be changed from /master to /main
+10. Click Save, then Build Now.
+11. After saving go to Build and Check Console Output:
+
+
+
+
+
+
+
+
+
+
+
+
+Practical 3:
+
+
+Q.1 Automate a Build and Deployment Pipeline using JENKINS and
+MAVEN
+Part 1:
+Download Maven and git and check their version.
+https://git-scm.com/install/windows?utm_source=chatgpt.com 
+https://maven.apache.org/download.cgi?utm_source=chatgpt.com 
+(binary zip to be downloaded and extracted and set tis path till bin in environmental variable – system variable – edit path and paste its path )
+
+
+Open jenkins http://localhost:8080/
+Go to settings>tools>Maven installations>add maven>write the name as Maven> save (remember to write capital M for maven)
+
+
+Create an new pipeline 
+Write the script and save
+
+
+Script code:
+pipeline {
+    agent any
+
+
+    tools {
+        maven 'Maven'
+    }
+
+
+    stages {
+        stage('Create Maven Project') {
+            steps {
+                echo 'Creating Java Maven project...'
+
+
+                bat 'if not exist src\\main\\java mkdir src\\main\\java'
+
+
+                writeFile file: 'pom.xml', text: '''<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>myapp</artifactId>
+    <version>1.0</version>
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+</project>
+'''
+
+
+                writeFile file: 'src/main/java/App.java', text: '''public class App {
+    public static void main(String[] args) {
+        System.out.println("Hello from Maven and Jenkins!");
+    }
+}
+'''
+            }
+        }
+
+
+        stage('Build') {
+            steps {
+                echo 'Building Java application using Maven...'
+                bat 'mvn -version'
+                bat 'mvn clean package'
+            }
+        }
+
+
+        stage('Test') {
+            steps {
+                echo 'Checking generated JAR file...'
+                bat 'dir target'
+            }
+        }
+
+
+        stage('Deploy') {
+            steps {
+                archiveArtifacts artifacts: 'target/*.jar',
+                                 allowEmptyArchive: false
+
+
+                echo 'Java application built and archived successfully!'
+            }
+        }
+    }
+}
+
+
+
+
+Build now> builds>console output
+
+
+
+
+Practical 4:
+
+
+* Download java 
+* Download git
+* Download docker desktop: https://docs.docker.com/desktop/setup/install/windows-install/
+* Environment variable put docker path
+* C:\Program Files\Docker\Docker\resources\bin( this is how docker path should be there)
+* Restart PC
+* Check version for both
+* Java –version
+* Docker –version
+* Open docker desktop application 
+* Open cmd and run: 
+* docker info
+* docker ps(this is to check are there any container running already)
+Create this 3 files 
+
+
+
+
+
+
+
+
+
+
+1st file:
+Index.html
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Docker Practical</title>
+</head>
+<body style="font-family: Arial; text-align: center; margin-top: 100px;">
+    <h1>Welcome to My Web Application!</h1>
+    <h2>Successfully Run Using Docker and Jenkins</h2>
+    <p>This application is running inside a Docker container.</p>
+</body>
+</html>
+
+
+
+
+2nd file:
+Dockerfile(no extensions)
+
+
+FROM nginx:alpine
+COPY index.html /usr/share/nginx/html/index.html
+EXPOSE 80
+
+
+
+
+3rd file:
+Jenkinsfile(no extension)
+
+
+pipeline {
+    agent any
+
+
+    stages {
+        stage('Build Docker Image') {
+            steps {
+                bat 'docker build -t simple-web-app .'
+            }
+        }
+
+
+        stage('Stop Old Container') {
+            steps {
+                bat 'docker rm -f simple-web-app || exit /b 0'
+            }
+        }
+
+
+        stage('Run Docker Container') {
+            steps {
+                bat 'docker run -d --name simple-web-app -p 8081:80 simple-web-app'
+            }
+        }
+
+
+        stage('Verify Application') {
+            steps {
+                bat 'docker ps'
+                bat 'docker image ls simple-web-app'
+            }
+        }
+    }
+}
+
+
+
+
+* Open github and create a new repository and upload these 3 files 
+* Copy url (eg:https://github.com/judithc-dev/docker-web-practical.git)
+* Open jenkins and create a new item (pipeline)
+* Change to pipeline script from scm and then paste ur git hub link 
+(in case u get some error like not able to detect ur url something like that then in jenkins go to settings tools in that u will git installation in that plase from ur file (C:\Program Files\Git\cmd) find location like this and place it instead of git.exe like this :
+C:\Program Files\Git\cmd\git.exe)
+
+
+Then again go to ur pipeline then the error will be gone and then change the master to main and Save changes and build 
+
+
+Then Go to docker desktop and click on the port
+http://localhost:8081/ (or else go to crome and directly type this url)
+
+
+Practical 5:
+
+
+Q.1 Write an Ansible playbook to automate the installation of software packages in a remote server.
+
+
+PLEASE REMEMBER PASSWORD IN EVERY PLACE SHOULD BE system GAWARO wali harkate nahi if if koi ghan karta hia aur password bhool jata koi na koi toh namuna niklega aesa toh passwrrod ke liye sudo passwd ansibleclient for terminal 1 sudo passwd system
+ 
+Cmd terminal 1                                                   
+wsl --install -d Ubuntu-22.04
+(write the name as system and password Also system )
+
+
+wsl --list --verbose(this command to be Run by opening a diff                        terminal)
+
+
+sudo apt update
+
+
+sudo apt install -y ansible openssh-client
+
+
+ansible --version
+
+
+
+
+
+
+Cmd terminal 2           
+
+
+wsl --install -d Ubuntu-24.04
+(write the name as ansibleclient and password Also system )
+
+
+wsl -d Ubuntu-24.04(this command is used when imagine u get out from the system @ whatever like the ubuntu so use this command to go back in it  and same goes for the terminal 1 just change from Ubuntu-24.04 to Ubuntu-22.04)
+
+
+sudo apt update
+
+
+sudo apt install -y openssh-server python3
+
+
+sudo service ssh start
+
+
+sudo service ssh status
+
+
+Find the managed node's IP address:
+hostname -I
+
+
+Cmd terminal 1
+
+
+ssh ansibleclient@172.31.115.41 (please remember apna ip address daal na sidha copy paste mat karna )          
+
+
+Then click yes 
+
+
+And then type exit
+
+
+mkdir -p ~/ansible-practical
+
+
+cd ~/ansible-practical
+
+
+nano inventory.ini
+
+
+Write this in file : 
+
+
+[webservers]
+managed1 ansible_host=172.31.115.41 ansible_user=ansibleclient
+(remember the ip should be urs and the user from terminal 2 joh tumlog ne likha hoga woh )
+
+
+Ctrl x then yes and then press enter 
+
+
+cat inventory.ini
+
+
+sudo apt update
+
+
+sudo apt install -y sshpass 
+
+
+sudo apt install -y python3-venv python3-pip
+
+
+python3 -m venv ~/ansible-venv
+
+
+source ~/ansible-venv/bin/activate
+
+
+python -m pip install --upgrade pip
+
+
+python -m pip install "ansible>=9,<12"
+
+
+ansible --version
+
+
+ansible webservers -i inventory.ini -m ping --ask-pass
+
+
+nano install_packages.yml
+
+
+Write this in file : 
+---
+- name: Install software packages on a remote server
+  hosts: webservers
+  become: true
+  gather_facts: true
+
+
+  tasks:
+    - name: Update APT package cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+
+    - name: Install required software packages
+      ansible.builtin.apt:
+        name:
+          - curl
+          - git
+          - vim
+          - tree
+        state: present
+
+
+Then Ctrl x then yes and then press enter 
+
+
+ansible-playbook -i inventory.ini install_packages.yml --syntax-check
+
+
+ansible-playbook -i inventory.ini install_packages.yml --ask-pass --ask-become-pass
+
+
+ansible webservers -i inventory.ini -m command -a "dpkg -l curl git vim tree" --ask-pass
+ (lets goo ye last command the proud of ull good boy/ good girl )
+
+
+Practical 6:
+
+
+Q.2 Set up a multicontainer application (webserver, database) using docker compose.
+
+
+Open cmd run 
+wsl --install -d Ubuntu-22.04. 
+Exit 
+
+
+ wsl --list --verbose
+If Ubuntu-24.04 is running terminate 
+wsl –terminate Ubuntu-24.04
+
+
+In vs code terminal
+ mkdir C:\DockerComposePractical
+
+
+Open the folder then create 4 files 
+app.py:
+import os
+import time
+import pymysql
+from flask import Flask, jsonify
+
+
+app = Flask(__name__)
+
+
+def get_db_connection():
+    return pymysql.connect(
+        host=os.getenv("DB_HOST", "db"),
+        user=os.getenv("DB_USER", "appuser"),
+        password=os.getenv("DB_PASSWORD", "apppassword"),
+        database=os.getenv("DB_NAME", "appdb"),
+        connect_timeout=5
+    )
+
+
+@app.route("/")
+def home():
+    return """
+    <h1>Docker Compose Practical</h1>
+    <p>Webserver container is running!</p>
+    <p><a href="/health">Check database connection</a></p>
+    """
+
+
+@app.route("/health")
+def health():
+    try:
+        connection = get_db_connection()
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+            result = cursor.fetchone()
+        connection.close()
+        return jsonify(status="healthy", database="connected", result=result[0])
+    except Exception as error:
+        return jsonify(status="unhealthy", error=str(error)), 503
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+
+
+
+
+
+
+requirements.txt:
+Flask
+PyMySQL
+
+
+
+
+ Dockerfile:
+
+
+FROM python:3.12-slim
+
+
+WORKDIR /app
+
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+
+COPY app.py .
+
+
+EXPOSE 5000
+
+
+CMD ["python", "app.py"]
+
+
+
+
+Compose.yaml:
+
+
+services:
+  web:
+    build: .
+    container_name: practical-web
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: db
+      DB_USER: appuser
+      DB_PASSWORD: ${DB_PASSWORD:-apppassword}
+      DB_NAME: appdb
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+
+  db:
+    image: mysql:8.0
+    container_name: practical-db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: appdb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: ${DB_PASSWORD:-apppassword}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+
+volumes:
+  mysql_data:
+
+
+
+
+Now run this commands : 
+
+
+docker compose config
+
+
+docker pull mysql:8.0
+docker compose up -d --build
+docker compose ps 
+docker compose logs --tail=50 
+
+
+Now u can go to docker container click on our container in that u can see the  http://localhost:5000 of run it idrectly on crome
