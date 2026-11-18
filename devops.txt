@@ -509,7 +509,8 @@ Exit
 If Ubuntu-24.04 is running terminate 
 wsl –terminate Ubuntu-24.04
 
-
+wsl --install -d Ubuntu-22.04
+to start running 22
 In vs code terminal
  mkdir C:\DockerComposePractical
 
