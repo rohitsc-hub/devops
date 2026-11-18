@@ -655,3 +655,137 @@ docker compose logs --tail=50
 
 
 Now u can go to docker container click on our container in that u can see the  http://localhost:5000 of run it idrectly on crome
+
+
+
+Q1 from maam doc
+
+git bash install hai ki nahi check karo 
+
+vs code me create a folder
+and the open the folder 
+
+git init
+
+go to crome login in to ur github
+
+now in teminal run this
+git config user.name "Your Name" (write ur username from the github)
+git config user.email "your-email@example.com" (write ur email id git login kiya woh )
+
+git branch -M main
+
+git config user.name
+git config user.email
+git status
+
+now create 3 files
+
+index.html:
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Management</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Student Management System</h1>
+    <script src="app.js"></script>
+</body>
+</html>
+
+style.css:
+
+
+body {
+    font-family: Arial;
+    text-align: center;
+    margin-top: 50px;
+}
+
+app.js
+
+console.log("Student Management System");
+
+save all the files then 
+
+git add .
+git commit -m "Initial commit"
+
+git status
+
+git switch -c feature-login
+
+now in index.html bettween body add this 
+
+<form>
+    <input type="text" placeholder="Username">
+    <input type="password" placeholder="Password">
+    <button type="submit">Login</button>
+</form>
+
+git add index.html
+git commit -m "Add login form"
+
+git switch main
+
+now open app.js change 
+
+console.log("Student Management Main Branch");
+
+then run thiss
+
+git add app.js
+git commit -m "Update main app"
+
+git merge feature-login
+
+git switch feature-login
+
+change app.js 
+console.log("Login Feature Branch");
+
+git add app.js
+git commit -m "Change message in feature branch"
+
+git switch main
+
+change app.js 
+console.log("Main Branch Updated");
+
+then run
+
+git add app.js
+git commit -m "Change message in main branch"
+
+git merge feature-login
+
+ then You'll see an error similar to:
+
+Auto-merging app.js
+CONFLICT (content): Merge conflict in app.js
+Automatic merge failed; fix conflicts and then commit the result.
+
+Open app.js. Git will show something similar to:
+<<<<<<< HEAD
+console.log("Main Branch Updated");
+=======
+console.log("Login Feature Branch");
+>>>>>>> feature-login
+
+replace fully with 
+
+console.log("Student Management System - Merged Successfully");
+
+then run
+git add app.js
+git commit -m "Resolve merge conflict"
+
+git log --graph --oneline
+
+thoda aur info aur ache se chahiye toh 
+
+git log --graph --oneline --all --decorate
+
+
